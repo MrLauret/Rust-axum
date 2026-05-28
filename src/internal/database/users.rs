@@ -1,4 +1,4 @@
-use sqlx::{self, PgPool, Pool, Postgres, Row};
+use sqlx::{self, PgPool, Row};
 use argon2::{password_hash};
 use password_hash::PasswordHasher;
 
@@ -16,20 +16,6 @@ impl UserType {
 
         Self { username: username, password: password_hash.to_string() }
     }
-}
-
-pub async fn init_db() -> Pool<Postgres>{
-    let url = dotenvy::var("DB_URL").unwrap();
-    
-    println!("Connecting to PostgreSQL...");
-
-    let db_pool = PgPool::connect(&url).await.expect("Failed to connect to database");
-    
-    sqlx::migrate!("src/internal/database/migrations")
-        .run(&db_pool)
-        .await.unwrap();
-    
-    db_pool
 }
 
 pub async fn register_user(pool: &PgPool, user: &UserType) -> Result<(), String> {

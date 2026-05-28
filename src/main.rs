@@ -4,14 +4,14 @@ use axum::{Router, routing::{get, post}};
 
 mod internal;
 use internal::handlers::handler::{*};
-use internal::database::database;
+use internal::database::general;
 
 #[main]
 async fn main() {
     dotenvy::dotenv().unwrap();
     let port = dotenvy::var("PORT").unwrap();
 
-    let db_pool = database::init_db().await;
+    let db_pool = general::init_db().await;
 
     let handler = Router::new()
         .route("/home", get(get_handler))
