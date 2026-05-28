@@ -1,5 +1,6 @@
-use axum::{Json, http::{HeaderMap, StatusCode}};
+use axum::{Json, extract::State, http::{HeaderMap, StatusCode}};
 use serde::Deserialize;
+use sqlx::PgPool;
 
 #[derive(Deserialize)]
 pub struct IncomingData {
@@ -19,7 +20,8 @@ pub async fn post_handler(_headers: HeaderMap, Json(payload): Json<IncomingData>
     })
 }
 
-pub async fn get_handler() -> Json<MessageResponse> {
+pub async fn get_handler(State(pool): State<PgPool>) -> Json<MessageResponse> {
+    
     let response = MessageResponse {
         status: StatusCode::OK.to_string(),
         msg: "Hello!".to_string()

@@ -12,11 +12,11 @@ async fn main() {
     let port = dotenvy::var("PORT").unwrap();
 
     let db_pool = database::init_db().await;
-    let db = db_pool.begin().await.unwrap();
 
     let handler = Router::new()
         .route("/home", get(get_handler))
-        .route("/home", post(post_handler));
+        .route("/home", post(post_handler))
+        .with_state(db_pool);
 
     let listener = tokio::net::TcpListener::bind(format!("127.0.0.1:{port}"))
         .await
