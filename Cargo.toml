@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+argon2 = { version = "0.5.3", features = ["password-hash", "std"] }
 axum = { version = "0.8.9", features = ["json", "tokio"] }
 dotenvy = "0.15.7"
 serde = { version = "1.0.228", features = ["derive"] }
