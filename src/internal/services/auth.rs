@@ -17,3 +17,4 @@ pub async fn check_password(pool: &PgPool, id: i32, raw_password: &str) -> Resul
         Err(_) => Err("Invalid password".to_string())
     }
 }
+
