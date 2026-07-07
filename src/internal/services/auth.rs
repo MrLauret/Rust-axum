@@ -29,7 +29,7 @@ pub async fn login(
 ) -> Result<(String, String), String> {
 
     // Check if the user is in the database \\
-    let user_id = database::users::get_id(pool, username).await?;
+    let user_id = database::users::get_id(pool, &username).await?;
 
     // Check if the password is valid \\
     if check_password(pool, &user_id, &raw_password).await.is_err() {

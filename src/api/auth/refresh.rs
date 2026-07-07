@@ -1,6 +1,8 @@
+use std::os::linux::raw::stat;
+
 use axum::{Json, extract::State, http::{self}};
 use serde::{Deserialize, Serialize};
-use crate::{AppState};
+use crate::{AppState, internal::services::auth::refresh_session};
 
 #[derive(Deserialize)]
 pub struct IncomingData {
@@ -23,14 +25,7 @@ pub async fn refresh_token(State(state): State<AppState>, Json(payload): Json<In
         })
     };
 
-    if state.autheng.verify_refresh_token(&state.pool, &id, &payload.refresh_token).await.is_err() {
-        return Json(MessageResponse {
-            status: http::StatusCode::BAD_REQUEST.to_string(),
-            access_token: String::new()
-        })
-    };
-
-    let access_token = match state.autheng.generate_access_token(&id) {
+    let access_token = match refresh_session(&state.pool, &payload.refresh_token, &state.autheng, &id).await {
         Ok(token) => token,
         Err(_) => return Json(MessageResponse {
             status: http::StatusCode::BAD_REQUEST.to_string(),
