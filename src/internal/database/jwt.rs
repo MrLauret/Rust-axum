@@ -1,7 +1,5 @@
-use std::ptr::hash;
-
 use crate::internal::services::jwt::{AuthEngine};
-use chrono;
+use chrono::{self, Utc};
 use sqlx::{PgPool};
 
 fn hash_token(token: &str) -> String {
@@ -12,7 +10,7 @@ fn hash_token(token: &str) -> String {
 }
 
 impl AuthEngine {
-    pub async fn save_refresh_token(pool: &PgPool, id: i32, token: String) -> Result<(), String> {
+    pub async fn save_refresh_token(pool: &PgPool, id: i32, token: &String) -> Result<(), String> {
         let token_hash = hash_token(&token);
         
         sqlx::query(
@@ -35,7 +33,7 @@ impl AuthEngine {
         Ok(())
     }
 
-    pub async fn verify_refresh_token(&self, pool: &PgPool, id: i32, token: String) -> Result<(), String> {
+    pub async fn verify_refresh_token(&self, pool: &PgPool, id: &i32, token: &String) -> Result<(), String> {
         let current_hash = hash_token(&token);
         let row: (String, chrono::DateTime<Utc>) = sqlx::query_as(
             "SELECT token_hash, expires_at FROM refresh_tokens WHERE user_id = $1"
@@ -47,6 +45,19 @@ impl AuthEngine {
             sqlx::Error::RowNotFound => "Refresh token not found or session revoked".to_string(),
             _ => e.to_string(),
         })?;
+
+        let token_hash = row.0;
+        let expire_date = row.1;
+
+        // Testing \\
+
+        if current_hash != token_hash {
+            return Err("Invalid refresh token".to_string());
+        }
+
+        if chrono::Utc::now() > expire_date {
+            return Err("Refresh token has expired".to_string());
+        }
 
         Ok(())
     }

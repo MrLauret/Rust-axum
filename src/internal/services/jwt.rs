@@ -9,6 +9,7 @@ pub struct Claims {
     pub exp: usize
 }
 
+#[derive(Clone)]
 pub struct AuthEngine {
     encoding_key: EncodingKey,
     decoding_key: DecodingKey
@@ -24,14 +25,14 @@ impl AuthEngine {
             decoding_key: DecodingKey::from_secret(secret.as_bytes()) })
     }
 
-    pub fn generate_access_token(&self, id: i32) -> Result<String, String> {
+    pub fn generate_access_token(&self, id: &i32) -> Result<String, String> {
         let expiration = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map_err(|e| e.to_string())?
             .as_secs() + (15 * 60);
 
         let claims = Claims {
-            sub: id,
+            sub: *id,
             exp: expiration as usize
         };
 
