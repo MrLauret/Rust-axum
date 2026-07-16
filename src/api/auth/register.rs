@@ -27,9 +27,9 @@ pub async fn register(State(state): State<AppState>, Json(payload): Json<Incomin
 
     match database::users::register_user(&state.pool, &user).await {
         Ok(_) => {},
-        Err(_) => return Json(MessageResponse {
+        Err(e) => return Json(MessageResponse {
             status: http::StatusCode::BAD_REQUEST.to_string(),
-            message: "Could not register user".to_string()
+            message: e
         })
     }
 

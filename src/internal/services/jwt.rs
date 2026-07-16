@@ -18,7 +18,7 @@ pub struct AuthEngine {
 impl AuthEngine {
     pub fn new() -> Result<Self, String> {
         dotenvy::dotenv().unwrap();
-        let secret = dotenvy::var("JWT_Secret").unwrap().to_string();
+        let secret = dotenvy::var("JWT_SECRET").unwrap().to_string();
         
         Ok(Self {
             encoding_key: EncodingKey::from_secret(secret.as_bytes()),
@@ -46,7 +46,7 @@ impl AuthEngine {
         hex::encode(bytes)
     }
 
-    pub fn check_access_token(&self, token: &str) -> Result<i32, String> {
+    pub fn verify_access_token(&self, token: &str) -> Result<i32, String> {
         let validation = Validation::new(jsonwebtoken::Algorithm::HS256);
 
         let token_data = jsonwebtoken::decode::<Claims>(token, &self.decoding_key, &validation)
