@@ -1,1 +1,1 @@
-Axum API
+Axum API with protected endpoints
